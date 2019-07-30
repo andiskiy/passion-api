@@ -3,8 +3,7 @@ shared_examples 'validates' do |current_model, another_model|
     let(:name) { 'Item name' }
     let(:item) { create current_model.to_sym, name: name }
 
-    it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_uniqueness_of(:name) }
+    include_examples 'name_validate'
 
     context "when the name is used in #{another_model.capitalize}" do
       let(:valid_item)   { create another_model.to_sym, name: 'New Item name' }

@@ -2,27 +2,23 @@
 
 # == Schema Information
 #
-#  Table name: categories
+#  Table name: courses
 #  id          :integer  not null, primary key
 #  name        :string
-#  vertical_id :bigint
+#  author      :string
+#  category_id :bigint
 #  state       :integer  default: 0
 #  created_at  :datetime not null
 #  updated_at  :datetime not null
 #
 
-class Category < ApplicationRecord
-  include NameValidateable
-
+class Course < ApplicationRecord
   STATES = %w[active disabled].freeze
   enum state: STATES
 
   # Associations
-  has_many :courses, dependent: :destroy
-  belongs_to :vertical
+  belongs_to :category
 
   # Validations
   validates :name, presence: true, uniqueness: true
-
-  name_validateable 'vertical'
 end
