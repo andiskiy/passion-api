@@ -10,6 +10,13 @@
 #
 
 class Vertical < ApplicationRecord
+  include NameValidateable
+
+  # Associations
+  has_many :categories, dependent: :destroy
+
   # Validations
   validates :name, presence: true, uniqueness: true
+
+  name_validateable 'category'
 end
