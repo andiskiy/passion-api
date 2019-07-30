@@ -42,5 +42,6 @@ Metrics/MethodLength:
 Metrics/AbcSize:
   Max: 25
 
-Rails/HasManyOrHasOneDependent:
-  Enabled: false
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - 'spec/**/*'
