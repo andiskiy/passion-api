@@ -1,24 +1,61 @@
-# README
+# PASSION-API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a RoR API application, which can work with external applications.
 
-Things you may want to cover:
+API is secured by jwt-tokens by using devise and devise-jwt gems.
 
-* Ruby version
+To authorize in app you should send the request which will return the JWT-token on Header. Then use this token on headers of each request. 
 
-* System dependencies
+The API can be scaled later by adding v2 version. 
 
-* Configuration
+This project developed with TDD principle, so there are Rspec tests.
 
-* Database creation
+## Used technologies
 
-* Database initialization
+* Rails 5.2.3
+* Ruby 2.6.3
+* PostgreSQL
+* Puma
+* Authorization: `Devise`, `Devise-JWT` 
 
-* How to run the test suite
+## Getting Started
 
-* Services (job queues, cache servers, search engines, etc.)
+Install [RVM](https://rvm.io/) with Ruby 2.6.3.
 
-* Deployment instructions
 
-* ...
+Copy:
+```
+cp .env.example .env
+cp config/database.yml.example config/database.yml
+```
+For `config/database.yml` update your `username/password`
+
+Install gems:
+```
+gem install bundler
+bundle install
+```
+
+##### Install DB
+
+empty data:
+```
+rake db:create
+rake db:migrate
+```
+
+or with the seeds data:
+
+```
+rake db:setup
+```
+
+## Environmental Variables
+
+```
+AWS_ACCESS_KEY_ID      => your access key id from AWS
+AWS_SECRET_ACCESS_KEY  => your secret access key from AWS
+AWS_TOPIC_NAME         => your topic name AWS SNS
+AWS_QUEUE_NAME         => your queue name AWS SQS
+DEVISE_JWT_SECRET_KEY  => jwt secret key
+```
