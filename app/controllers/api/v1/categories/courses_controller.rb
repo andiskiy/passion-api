@@ -18,6 +18,11 @@ module Api
         def create
           course = @category.courses.create!(course_params)
           json_response(course, :created)
+
+          # I would to add notification sending to callback,
+          # or trigger delay job on callback to sending it.
+          # But just for mockup I added it by this way
+          UserMailer.new_course(current_user, course).deliver_now
         end
 
         def update
