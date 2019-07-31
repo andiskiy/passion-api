@@ -21,7 +21,7 @@ module Api
         end
 
         def update
-          @category.update(category_params)
+          @category.update!(category_params)
           json_response(@category, :ok)
         end
 

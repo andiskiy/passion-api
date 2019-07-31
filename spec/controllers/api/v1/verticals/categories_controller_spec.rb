@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V1::Verticals::CategoriesController, type: :controller do
   let!(:vertical)   { create(:vertical) }
-  let!(:categories) { create_list(:category, 20, vertical_id: vertical.id) }
+  let!(:categories) { create_list(:category, 10, vertical_id: vertical.id) }
   let(:vertical_id) { vertical.id }
   let(:category_id) { categories.first.id }
 
@@ -10,25 +10,13 @@ RSpec.describe Api::V1::Verticals::CategoriesController, type: :controller do
     before { get :index, params: { vertical_id: vertical_id } }
 
     context 'when vertical exists' do
-      it 'returns status code :ok' do
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns all vertical categories' do
-        expect(json_data.size).to eq(20)
-      end
+      include_examples 'get_index'
     end
 
     context 'when vertical does not exist' do
       let(:vertical_id) { 0 }
 
-      it 'returns status code :not_found' do
-        expect(response).to have_http_status(:not_found)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find vertical/i)
-      end
+      include_examples 'not_found', 'vertical'
     end
   end
 
@@ -48,25 +36,13 @@ RSpec.describe Api::V1::Verticals::CategoriesController, type: :controller do
     context 'when vertical category does not exist' do
       let(:category_id) { 0 }
 
-      it 'returns status code :not_found' do
-        expect(response).to have_http_status(:not_found)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find category/i)
-      end
+      include_examples 'not_found', 'category'
     end
 
     context 'when category from another vertical' do
       let(:vertical_id) { create(:vertical).id }
 
-      it 'returns status code :not_found' do
-        expect(response).to have_http_status(:not_found)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find category/i)
-      end
+      include_examples 'not_found', 'category'
     end
   end
 
@@ -80,14 +56,24 @@ RSpec.describe Api::V1::Verticals::CategoriesController, type: :controller do
     end
 
     context 'when an invalid request' do
-      before { post :create, params: { vertical_id: vertical_id } }
+      context 'and name is null' do
+        before { post :create, params: { vertical_id: vertical_id } }
 
-      it 'returns status code :unprocessable_entity' do
-        expect(response).to have_http_status(:unprocessable_entity)
+        include_examples 'name_cannot_blank'
       end
 
-      it 'returns a failure message' do
-        expect(response.body).to match(/Validation failed: Name can't be blank/i)
+      context 'and the same name' do
+        before { post :create, params: { vertical_id: vertical_id, name: categories.first.name } }
+
+        include_examples 'already_be_taken'
+      end
+
+      context 'and the name is like a vertical' do
+        let(:vertical) { create :vertical }
+
+        before { post :create, params: { vertical_id: vertical_id, name: vertical.name } }
+
+        include_examples 'already_be_taken'
       end
     end
   end
@@ -110,12 +96,28 @@ RSpec.describe Api::V1::Verticals::CategoriesController, type: :controller do
     context 'when the category does not exist' do
       let(:category_id) { 0 }
 
-      it 'returns status code :not_found' do
-        expect(response).to have_http_status(:not_found)
+      include_examples 'not_found', 'category'
+    end
+
+    context 'when the name invalid' do
+      context 'and name is null' do
+        before { put :update, params: { vertical_id: vertical_id, id: category_id, name: nil } }
+
+        include_examples 'name_cannot_blank'
       end
 
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find category/i)
+      context 'and not unique among categories' do
+        let(:name) { categories.last.name }
+
+        before { put :update, params: { vertical_id: vertical_id, id: category_id, name: name } }
+
+        include_examples 'already_be_taken'
+      end
+
+      context 'and not unique among verticals + categories' do
+        before { put :update, params: { vertical_id: vertical_id, id: category_id, name: create(:vertical).name } }
+
+        include_examples 'already_be_taken'
       end
     end
   end

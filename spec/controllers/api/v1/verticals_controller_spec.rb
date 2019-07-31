@@ -7,17 +7,7 @@ RSpec.describe Api::V1::VerticalsController, type: :controller do
   describe 'GET index' do
     before { get :index }
 
-    it 'verticals size is 10' do
-      expect(json_data.size).to eq(10)
-    end
-
-    it 'verticals not to be emty' do
-      expect(json_data).not_to be_empty
-    end
-
-    it 'returns status code :ok' do
-      expect(response).to have_http_status(:ok)
-    end
+    include_examples 'get_index'
   end
 
   describe 'GET show' do
@@ -38,15 +28,9 @@ RSpec.describe Api::V1::VerticalsController, type: :controller do
     end
 
     context 'when the record does not exist' do
-      let(:vertical_id) { 100 }
+      let(:vertical_id) { 0 }
 
-      it 'returns status code :not_found' do
-        expect(response).to have_http_status(:not_found)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Vertical with 'id'=100/)
-      end
+      include_examples 'not_found', 'vertical'
     end
   end
 
@@ -66,23 +50,33 @@ RSpec.describe Api::V1::VerticalsController, type: :controller do
     end
 
     context 'when the request is invalid' do
-      before { post :create, params: { name: nil } }
+      context 'and name is null' do
+        before { post :create, params: { name: nil } }
 
-      it 'returns status code :unprocessable_entity' do
-        expect(response).to have_http_status(:unprocessable_entity)
+        include_examples 'name_cannot_blank'
       end
 
-      it 'returns a validation failure message' do
-        expect(response.body).to match(/Validation failed: Name can't be blank/)
+      context 'and the same name' do
+        before { post :create, params: { name: verticals.first.name } }
+
+        include_examples 'already_be_taken'
+      end
+
+      context 'and the name is like a category' do
+        let(:category) { create :category }
+
+        before { post :create, params: { name: category.name } }
+
+        include_examples 'already_be_taken'
       end
     end
   end
 
   describe 'PUT update' do
     context 'when the name valid' do
-      before { put :update, params: { id: vertical_id, name: name } }
-
       let(:name) { 'Shopping' }
+
+      before { put :update, params: { id: vertical_id, name: name } }
 
       it 'updates the record' do
         expect(json['name']).to eq(name)
@@ -94,16 +88,24 @@ RSpec.describe Api::V1::VerticalsController, type: :controller do
     end
 
     context 'when the name invalid' do
-      before { put :update, params: { id: vertical_id, name: name } }
+      context 'and name is null' do
+        before { put :update, params: { id: vertical_id, name: nil } }
 
-      let(:name) { verticals.last.name }
-
-      it 'returns a validation failure message' do
-        expect(response.body).to match(/Validation failed: Name has already been taken/)
+        include_examples 'name_cannot_blank'
       end
 
-      it 'returns status code :unprocessable_entity' do
-        expect(response).to have_http_status(:unprocessable_entity)
+      context 'and not unique among verticals' do
+        let(:name) { verticals.last.name }
+
+        before { put :update, params: { id: vertical_id, name: name } }
+
+        include_examples 'already_be_taken'
+      end
+
+      context 'and not unique among verticals + categories' do
+        before { put :update, params: { id: vertical_id, name: create(:category).name } }
+
+        include_examples 'already_be_taken'
       end
     end
   end
