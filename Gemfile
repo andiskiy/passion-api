@@ -33,6 +33,7 @@ gem 'devise'
 gem 'devise-jwt'
 gem 'rack-cors', require: 'rack/cors'
 gem 'dotenv-rails'
+gem 'aws-sdk', '~> 1.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

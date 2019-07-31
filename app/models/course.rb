@@ -13,6 +13,8 @@
 #
 
 class Course < ApplicationRecord
+  include AwsResources
+
   STATES = %w[active disabled].freeze
   enum state: STATES
 
@@ -21,4 +23,13 @@ class Course < ApplicationRecord
 
   # Validations
   validates :name, presence: true, uniqueness: true
+
+  # Callbacks
+  # after_create :send_to_sqs
+
+  private
+
+  def send_to_sqs
+    queue.send_message(self)
+  end
 end
