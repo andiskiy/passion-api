@@ -5,7 +5,11 @@ Rails.application.routes.draw do
         resources :categories, module: :verticals
       end
 
-      resources :categories, only: :index
+      resources :categories, only: :index do
+        resources :courses, module: :categories
+      end
+
+      resources :courses, only: :index
     end
   end
 end
