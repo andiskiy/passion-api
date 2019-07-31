@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::VerticalsController, type: :controller do
+  login_user
+
   let!(:verticals)  { create_list(:vertical, 10) }
   let(:vertical_id) { verticals.first.id }
 

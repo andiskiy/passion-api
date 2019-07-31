@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::Verticals::CategoriesController, type: :controller do
+  login_user
+
   let!(:vertical)   { create(:vertical) }
   let!(:categories) { create_list(:category, 10, vertical_id: vertical.id) }
   let(:vertical_id) { vertical.id }

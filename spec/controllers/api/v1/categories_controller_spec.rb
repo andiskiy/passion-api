@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::CategoriesController, type: :controller do
+  login_user
+
   before { create_list(:category, 10) }
 
   describe 'GET index' do

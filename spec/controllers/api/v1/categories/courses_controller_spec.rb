@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::Categories::CoursesController, type: :controller do
+  login_user
+
   let!(:courses)    { create_list(:course, 10, category_id: category.id) }
   let!(:category)   { create(:category) }
   let(:category_id) { category.id }
